@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-4.2.xsd">
+
+	<bean id="printService" class="com.example.demo.PrintService" />
+	<bean id="customService" class="com.example.demo.CustomService" />
+
+	<int:gateway service-interface="com.example.demo.PrinterGateway"
+				 default-request-channel="inputChannel">
+	</int:gateway>
+
+	<int:channel id="inputChannel" />
+	<int:channel id="outputChannel" />
+	<int:channel id="filterChannel" />
+	<int:channel id="enricherChannel" />
+	<int:channel id="requestChannel" />
+	
+	<int:service-activator ref="customService" input-channel="requestChannel" method="getPhoneNumber" />
+	
+	<int:enricher input-channel="inputChannel" request-channel="requestChannel" output-channel="enricherChannel" >
+		<int:property name="phoneNumber" expression="payload" />
+	</int:enricher>
+	
+	<int:header-filter header-names="privateKey,clientKey" input-channel="enricherChannel" output-channel="outputChannel" />
+	
+	<!-- <int:object-to-string-transformer input-channel="inputChannel" output-channel="outputChannel" /> -->
+	<int:object-to-json-transformer input-channel="filterChannel" output-channel="outputChannel" />
+
+	<int:service-activator ref="printService" method="print"
+						   input-channel="outputChannel" />
+
+</beans>
