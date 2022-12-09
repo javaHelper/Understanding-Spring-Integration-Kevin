@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-4.2.xsd">
+
+    <int:channel id="inputChannel"/>
+    <int:channel id="outputChannel"/>
+
+    <bean id="printService" class="com.example.demo.service.PrintService"/>
+
+	<!-- Defines an endpoint for the 'org.springframework.integration.handler.ServiceActivatingHandler' for exposing any bean 
+		 reference as a service that receives request Messages from an 'input-channel' and may send reply Messages to an 
+		 'output-channel'. The 'ref' may point to an instance that has either a single public method or a method with the 
+		 @ServiceActivator annotation. Otherwise, the 'method' attribute should be provided along with 'ref'. -->
+    <int:service-activator ref="printService"
+                           method="print"
+                           input-channel="inputChannel"
+                           output-channel="outputChannel" />
+</beans>
